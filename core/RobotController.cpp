@@ -1,38 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <iomanip>
-
-class RobotController
-{
-private:
-    const int PORT_UDP_BROADCAST = 40926;
-    const int PORT_TCP_CONTROL = 40923;
-    const int BUFFER_LENGTH = 1024;
-
-    char *receive_buffer;
-    
-    in_addr_t IP = INADDR_NONE;
-    int _tcp_socket = -1;
-
-    // scan and require robot's IP address
-    in_addr_t _get_ip(int port);
-    // create a tcp link with robot
-    int _connect(in_addr_t IP, int port);
-
-public:
-    RobotController();
-    ~RobotController();
-
-    // send a control command to robot
-    std::string send_command(std::string command);
-};
+#include "RobotController.hpp"
 
 RobotController::RobotController()
 {
@@ -43,18 +9,18 @@ RobotController::RobotController()
     // scan robot's IP broadcast
     this->IP = _get_ip(this->PORT_UDP_BROADCAST);
 
-    // successed to get robot's IP address
+    // succeeded to get robot's IP address
     if (this->IP != INADDR_NONE)
     {
         this->_tcp_socket = this->_connect(this->IP, this->PORT_TCP_CONTROL);
 
-        // successed to create a tcp link with robot
+        // succeeded to create a tcp link with robot
         if (this->_tcp_socket > 0)
         {
             // enable robot's 'SDK Mode'
             std::string response = this->send_command(std::string("command"));
 
-            // successed to enable robot's 'SDK Mode'
+            // succeeded to enable robot's 'SDK Mode'
             if (0 == response.compare(std::string("ok")))
             {
                 std::clog << "[Info] Success to enter robot's SDK Mode" << std::endl;
@@ -111,7 +77,7 @@ in_addr_t RobotController::_get_ip(int port)
     int udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
     if (udp_socket < 0)
     {
-        std::cerr << "[Error] Failed to create an udp socket to aquire robot's IP address" << std::endl;
+        std::cerr << "[Error] Failed to create an udp socket to acquire robot's IP address" << std::endl;
         return robot_ip;
     }
 
@@ -191,8 +157,8 @@ int RobotController::_connect(in_addr_t IP, int port)
     return tcp_socket;
 }
 
-std::string RobotController::send_command(std::string command) {
-    std::stringstream stream;
+std::string RobotController::send_command(std::string command)
+{
     std::string response;
 
     send(this->_tcp_socket, command.c_str(), command.length(), 0);
@@ -211,11 +177,13 @@ std::string RobotController::send_command(std::string command) {
     return response;
 }
 
-int main()
+bool RobotController::set_chassis_speed(float vx, float vy, float vz)
 {
-    RobotController robot;
+    std::string command = std::string("chassis speed") 
+                        + " x " + std::to_string(vx) 
+                        + " y " + std::to_string(vy)
+                        + " z " + std::to_string(vz);
+    std::clog << "[Command] " << command << std::endl;
 
-    robot.send_command("chassis attitude ?");
-
-    return 0;
+    return (0 == std::string("ok").compare(this->send_command(command)));
 }
