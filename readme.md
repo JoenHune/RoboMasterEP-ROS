@@ -1,5 +1,6 @@
-# C++ version RoboMaster SDK and ROS interfaces for RoboMaster EP
+# C++ version RoboMaster SDK and ROS Interfaces for RoboMaster EP
 
+Working in progress...
 
 ## Reference
 1. [Official Website](https://www.dji.com/robomaster-ep)
