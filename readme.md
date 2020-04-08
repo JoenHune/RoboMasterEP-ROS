@@ -1,6 +1,5 @@
-# 基于RoboMaster SDK的ROS控制节点
+# C++ version RoboMaster SDK and ROS interfaces for RoboMaster EP
 
-A C++ version RoboMaster SDK and ROS interfaces for RoboMaster EP
 
 ## Reference
 1. [Official Website](https://www.dji.com/robomaster-ep)
