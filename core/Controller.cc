@@ -1,18 +1,16 @@
-#include "RobotController.hpp"
+#include "Controller.h"
 
-RobotController::RobotController()
+Controller::Controller(in_addr_t ip, int port)
+    : ip(ip), port(port)
 {
     // allocate receive buffer for some control command which within response
     this->receive_buffer = new char[BUFFER_LENGTH];
     memset(this->receive_buffer, 0, BUFFER_LENGTH);
-    
-    // scan robot's IP broadcast
-    this->IP = _get_ip(this->PORT_UDP_BROADCAST);
 
     // succeeded to get robot's IP address
-    if (this->IP != INADDR_NONE)
+    if (this->ip != INADDR_NONE)
     {
-        this->_tcp_socket = this->_connect(this->IP, this->PORT_TCP_CONTROL);
+        this->_tcp_socket = this->connect_via_tcp(this->ip, this->port);
 
         // succeeded to create a tcp link with robot
         if (this->_tcp_socket > 0)
@@ -29,24 +27,23 @@ RobotController::RobotController()
             // failed to enable robot's 'SDK Mode'
             else
             {
-
+                std::cerr << "[Error] Failed to enable robot's 'SDK Mode'" << std::endl;
             }
         }
         // failed to create tcp link with robot
         else
         {
-            
+            std::cerr << "[Error] Failed to create tcp link with robot" << std::endl;
         }
     }
     // failed to get robot's IP
     else
     {
-
+        std::cerr << "[Error] Robot's IP error" << std::endl;
     }
-    
 }
 
-RobotController::~RobotController(void)
+Controller::~Controller(void)
 {
     // close the control socket
     if (this->_tcp_socket > 0) 
@@ -68,68 +65,7 @@ RobotController::~RobotController(void)
     }
 }
 
-
-in_addr_t RobotController::_get_ip(int port)
-{
-    in_addr_t robot_ip = INADDR_NONE;
-
-    // create a file descriptor of udp socket
-    int udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
-    if (udp_socket < 0)
-    {
-        std::cerr << "[Error] Failed to create an udp socket to acquire robot's IP address" << std::endl;
-        return robot_ip;
-    }
-
-    // setup udp socket's IP address and port
-    struct sockaddr_in listen_addr;
-    memset(&listen_addr, 0, sizeof(sockaddr_in));
-
-    listen_addr.sin_family = AF_INET;                // using IPv4
-    listen_addr.sin_port = htons(port);              // port
-    listen_addr.sin_addr.s_addr = htonl(INADDR_ANY); // 0.0.0.0(any address)
-
-    // bind socket with IP address and port
-    if (bind(udp_socket, (struct sockaddr *)&listen_addr, sizeof(sockaddr_in)) < 0)
-    {
-        std::cerr << "[Error] Failed to bind the socket with the appointed IP address and port";
-        return robot_ip;
-    }
-
-    // to store address information of received messages
-    struct sockaddr_in receive_addr;
-    int socket_length = sizeof(sockaddr_in);
-
-    std::string response, _template = "robot ip ";
-
-    std::clog << "[Info] Waiting message from robot..." << std::endl;
-    while (1)
-    {
-        // an udp message is received
-        int l = recvfrom(udp_socket, this->receive_buffer, BUFFER_LENGTH, 0, (struct sockaddr *)&receive_addr, (socklen_t *)&(socket_length));
-
-        if (l > _template.length())
-        {
-            response = this->receive_buffer;
-            response = response.substr(0, l);
-
-            // if response is valid
-            if (0 == response.compare(0, _template.length(), _template))
-            {
-                std::clog << "[Response] " << response << std::endl;
-                robot_ip = receive_addr.sin_addr.s_addr;
-                break;
-            }
-            else continue;
-        }
-    }
-
-    close(udp_socket);
-
-    return robot_ip;
-}
-
-int RobotController::_connect(in_addr_t IP, int port)
+int Controller::connect_via_tcp(in_addr_t ip, int port)
 {
     int tcp_socket = socket(PF_INET, SOCK_STREAM, 0);
     if (tcp_socket < 0)
@@ -143,7 +79,7 @@ int RobotController::_connect(in_addr_t IP, int port)
 
     target_addr.sin_family = AF_INET;
     target_addr.sin_port = htons(port);
-    target_addr.sin_addr.s_addr = IP;
+    target_addr.sin_addr.s_addr = ip;
 
     std::clog << "[Info] Connecting..." << std::endl;
     if (connect(tcp_socket, (struct sockaddr *)&target_addr, sizeof(sockaddr_in)) < 0)
@@ -157,7 +93,7 @@ int RobotController::_connect(in_addr_t IP, int port)
     return tcp_socket;
 }
 
-std::string RobotController::send_command(std::string command)
+std::string Controller::send_command(std::string command)
 {
     std::string response;
 
@@ -177,7 +113,7 @@ std::string RobotController::send_command(std::string command)
     return response;
 }
 
-bool RobotController::set_chassis_speed(float vx, float vy, float vz)
+bool Controller::set_chassis_speed(float vx, float vy, float vz)
 {
     std::string command = std::string("chassis speed") 
                         + " x " + std::to_string(vx) 
