@@ -7,8 +7,12 @@
 #include <iostream>
 
 #include "Controller.h"
-#include "MessageReceiver.h"
+#include "PushReceiver.h"
 #include "EventHandler.h"
+#include "Thread.h"
+
+namespace RoboMasterEP
+{
 
 class Robot
 {
@@ -16,7 +20,7 @@ private:
     const int PORT_TCP_VEDIO     = 40921;
     const int PORT_TCP_AUDIO     = 40922;
     const int PORT_TCP_CONTROL   = 40923;
-    const int PORT_UDP_MESSAGE   = 40924;
+    const int PORT_UDP_PUSH      = 40924;
     const int PORT_TCP_EVENT     = 40925;
     const int PORT_UDP_BROADCAST = 40926;
 
@@ -31,9 +35,12 @@ private:
 
 public:
     Controller *controller;
-    MessageReceiver *messages;
-    EventHandler *events;
+    PushReceiver *push_receiver;
+    EventHandler *event_handler;
+    Thread *thread_manager;
 
     Robot();
     ~Robot();
+};
+
 };

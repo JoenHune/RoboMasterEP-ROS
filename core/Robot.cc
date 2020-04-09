@@ -1,5 +1,7 @@
 #include "Robot.h"
 
+using namespace RoboMasterEP;
+
 Robot::Robot()
 {
     // allocate receive buffer for UDP transmission
@@ -10,9 +12,10 @@ Robot::Robot()
 
     try
     {
-        this->controller = new Controller(this->ip, PORT_TCP_CONTROL);
-        this->messages = new MessageReceiver(this->ip, PORT_UDP_MESSAGE);
-        this->events = new EventHandler(this->ip, PORT_TCP_EVENT);
+        this->controller = new Controller(this, this->ip, PORT_TCP_CONTROL);
+        this->push_receiver = new PushReceiver(this, this->ip, PORT_UDP_PUSH);
+        this->event_handler = new EventHandler(this, this->ip, PORT_TCP_EVENT);
+        this->thread_manager = new Thread(this);
     }
     catch(const std::exception& e)
     {
@@ -22,14 +25,36 @@ Robot::Robot()
 
 Robot::~Robot()
 {
-    if (controller) delete controller;
+    if (this->controller)
+    {
+        delete this->controller;
+        this->controller = nullptr;
+    }
 
-    if (messages) delete messages;
+    if (this->push_receiver)
+    {
+        delete this->push_receiver;
+        this->push_receiver = nullptr;
+    }
 
-    if (events) delete events;
+    if (this->event_handler)
+    {
+        delete this->event_handler;
+        this->event_handler = nullptr;
+    }
+
+    if (this->thread_manager)
+    {
+        delete this->thread_manager;
+        this->thread_manager = nullptr;
+    }
 
     // release receive buffer
-    if (receive_buffer) delete receive_buffer;
+    if (this->receive_buffer)
+    {
+        delete this->receive_buffer;
+        this->receive_buffer = nullptr;
+    }
 }
 
 in_addr_t Robot::update_ip_via_udp(int port)
@@ -55,11 +80,11 @@ in_addr_t Robot::update_ip_via_udp(int port)
     // bind socket with IP address and port
     if (bind(udp_socket, (struct sockaddr *)&listen_addr, sizeof(sockaddr_in)) < 0)
     {
-        std::cerr << "[Error] Failed to bind the socket with the appointed IP address and port";
+        std::cerr << "[Error] Failed to bind the socket with the appointed IP address and port" << std::endl;
         return robot_ip;
     }
 
-    // to store address information of received messages
+    // to store address information of received push_receiver
     struct sockaddr_in receive_addr;
     int socket_length = sizeof(sockaddr_in);
 
@@ -84,8 +109,6 @@ in_addr_t Robot::update_ip_via_udp(int port)
                 break;
             }
             else continue;
-
-        std::cout << "here4" << std::endl;
         }
     }
 

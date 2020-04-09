@@ -1,7 +1,10 @@
 #include "Controller.h"
+#include "Robot.h"
 
-Controller::Controller(in_addr_t ip, int port)
-    : ip(ip), port(port)
+using namespace RoboMasterEP;
+
+Controller::Controller(Robot * robot, in_addr_t ip, int port)
+    : robot(robot), ip(ip), port(port)
 {
     // allocate receive buffer for some control command which within response
     this->receive_buffer = new char[BUFFER_LENGTH];
@@ -62,7 +65,10 @@ Controller::~Controller(void)
     if (receive_buffer)
     {
         delete receive_buffer;
+        receive_buffer = nullptr;
     }
+
+    robot = nullptr;
 }
 
 int Controller::connect_via_tcp(in_addr_t ip, int port)
@@ -120,6 +126,36 @@ bool Controller::set_chassis_speed(float vx, float vy, float vz)
                         + " y " + std::to_string(vy)
                         + " z " + std::to_string(vz);
     std::clog << "[Command] " << command << std::endl;
+
+    return (0 == std::string("ok").compare(this->send_command(command)));
+}
+
+bool Controller::switch_chassis_push_info(PushSwitch s, ChassisPushAttr attr=ALL, ChassisPushFrequence freq=FREQ_OFF)
+{
+    std::string command = std::string("chassis push");
+
+    switch (attr)
+    {
+    case POSITION:
+        command += " position on pfreq " + std::to_string(freq);
+        break;
+
+    case ATTITUDE:
+        command += " attitude on afreq " + std::to_string(freq);
+        break;
+
+    case STATUS:
+        command += " status on sfreq " + std::to_string(freq);
+        break;
+    
+    default:
+        command += " position on attitude on status on freq " + std::to_string(freq);
+        break;
+    }
+
+    std::clog << "[Command] " << command << std::endl;
+
+    this->robot->thread_manager->start(PUSHRECEIVER);
 
     return (0 == std::string("ok").compare(this->send_command(command)));
 }

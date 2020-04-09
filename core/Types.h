@@ -1,6 +1,15 @@
 #pragma once
 
 #include <stdlib.h>
+namespace RoboMasterEP
+{
+    
+enum ThreadType
+{
+    PUSHRECEIVER = 0,
+    EVENTDETECTOR,
+    NUMBER_OF_TYPES
+};
 
 enum ControlMode
 {
@@ -25,6 +34,7 @@ enum ChassisPushAttr
 
 enum ChassisPushFrequence
 {
+    FREQ_OFF = 0,
     FREQ_1Hz = 1,
     FREQ_5Hz = 5,
     FREQ_10Hz = 10,
@@ -77,4 +87,6 @@ union ChassisStatus
 
         uint16_t reserve:5;
     } bit;
+};
+
 };

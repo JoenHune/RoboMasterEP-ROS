@@ -11,6 +11,11 @@
 
 #include "Types.h"
 
+namespace RoboMasterEP
+{
+
+class Robot;
+
 class Controller
 {
 private:
@@ -26,7 +31,9 @@ private:
     int connect_via_tcp(in_addr_t ip, int port);
 
 public:
-    Controller(in_addr_t ip, int port);
+    Robot *robot;
+
+    Controller(Robot *robot, in_addr_t ip, int port);
     ~Controller();
 
     // basic
@@ -149,4 +156,6 @@ public:
     // @return:
     //      bool: operation succeeded or failed
     bool switch_chassis_push_info(PushSwitch s, ChassisPushAttr attr, ChassisPushFrequence freq);
+};
+
 };
