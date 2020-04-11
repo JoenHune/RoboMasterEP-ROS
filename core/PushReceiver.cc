@@ -8,7 +8,7 @@ PushReceiver::PushReceiver(Robot *robot, in_addr_t ip, int port)
     // allocate receive buffer for some control command which within response
     this->receive_buffer = new char[BUFFER_LENGTH];
     memset(this->receive_buffer, 0, BUFFER_LENGTH);
-    
+
     this->connect_via_udp();
     std::clog << "[Info] Waiting push messages..." << std::endl;
 }
@@ -36,7 +36,6 @@ bool PushReceiver::connect_via_udp()
 
     listen_addr.sin_family = AF_INET;           // using IPv4
     listen_addr.sin_port = htons(this->port);   // port
-    // listen_addr.sin_addr.s_addr = this->ip;     // ip address
     listen_addr.sin_addr.s_addr = htonl(INADDR_ANY);     // ip address
 
     // bind socket with IP address and port
