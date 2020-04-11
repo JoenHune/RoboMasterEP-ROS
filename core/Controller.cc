@@ -48,6 +48,21 @@ Controller::Controller(Robot * robot, in_addr_t ip, int port)
 
 Controller::~Controller(void)
 {
+    // exit robot's 'SDK Mode'
+    std::string response = this->send_command(std::string("quit"));
+
+    // succeeded to exit robot's 'SDK Mode'
+    if (0 == response.compare(std::string("ok")))
+    {
+        std::clog << "[Info] Success to exit robot's SDK Mode" << std::endl;
+    }
+
+    // failed to exit robot's 'SDK Mode'
+    else
+    {
+        std::cerr << "[Error] Failed to exit robot's 'SDK Mode'" << std::endl;
+    }
+
     // close the control socket
     if (this->_tcp_socket > 0) 
     {
@@ -130,32 +145,35 @@ bool Controller::set_chassis_speed(float vx, float vy, float vz)
     return (0 == std::string("ok").compare(this->send_command(command)));
 }
 
-bool Controller::switch_chassis_push_info(PushSwitch s, ChassisPushAttr attr=ALL, ChassisPushFrequence freq=FREQ_OFF)
+bool Controller::switch_chassis_push_info(PushSwitch s, ChassisPushAttr attr=ALL, ChassisPushFrequence freq=FREQ_1Hz)
 {
     std::string command = std::string("chassis push");
+
+    std::string _s = (s == ON) ? "on" : "off";
 
     switch (attr)
     {
     case POSITION:
-        command += " position on pfreq " + std::to_string(freq);
+        command += " position " + _s + " pfreq " + std::to_string(freq);
         break;
 
     case ATTITUDE:
-        command += " attitude on afreq " + std::to_string(freq);
+        command += " attitude " + _s + " afreq " + std::to_string(freq);
         break;
 
     case STATUS:
-        command += " status on sfreq " + std::to_string(freq);
+        command += " status " + _s + " sfreq " + std::to_string(freq);
         break;
     
     default:
-        command += " position on attitude on status on freq " + std::to_string(freq);
+        command += " position " + _s + " attitude " + _s + " status " + _s + " freq " + std::to_string(freq);
         break;
     }
 
     std::clog << "[Command] " << command << std::endl;
 
-    this->robot->thread_manager->start(PUSHRECEIVER);
+    if (s == ON) this->robot->push_receiver->start();
+    else         this->robot->push_receiver->stop();
 
     return (0 == std::string("ok").compare(this->send_command(command)));
 }
