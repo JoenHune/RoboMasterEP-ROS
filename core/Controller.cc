@@ -49,6 +49,7 @@ Controller::Controller(Robot * robot, in_addr_t ip, int port)
 Controller::~Controller(void)
 {
     // exit robot's 'SDK Mode'
+    std::clog << "[Command] quit" << std::endl;
     std::string response = this->send_command(std::string("quit"));
 
     // succeeded to exit robot's 'SDK Mode'
@@ -68,7 +69,7 @@ Controller::~Controller(void)
     {
         try
         {
-            close(_tcp_socket);
+            close(this->_tcp_socket);
         }
         catch(const std::exception& e)
         {
@@ -107,6 +108,16 @@ int Controller::connect_via_tcp(in_addr_t ip, int port)
     {
         std::cerr << "[Error] Connect error" << std::endl;
         return -1;
+    }
+
+    // set socket timeout with 5s
+    struct timeval timeout;
+    timeout.tv_sec = 5;
+    timeout.tv_usec = 0;
+    if (setsockopt(tcp_socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0)
+    {
+        std::cerr << "[Error] Failed to set time out to socket" << std::endl;
+        return false;
     }
 
     std::clog << "[Info] Connected to target" << std::endl;
