@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdlib.h>
+#include <cstdint>
+
 namespace RoboMasterEP
 {
     

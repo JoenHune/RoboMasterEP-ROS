@@ -156,6 +156,19 @@ bool Controller::set_chassis_speed(float vx, float vy, float vz)
     return (0 == std::string("ok").compare(this->send_command(command)));
 }
 
+bool Controller::set_chassis_position_relative(float dx, float dy, float dz, float vxy, float vz)
+{
+    std::string command = std::string("chassis move")
+                        + " x " + std::to_string(dx)
+                        + " y " + std::to_string(dy)
+                        + " z " + std::to_string(dz)
+                        + " vxy " + std::to_string(vxy)
+                        + " vz " + std::to_string(vz);
+    std::clog << "[Command] " << command << std::endl;
+
+    return (0 == std::string("ok").compare(this->send_command(command)));
+}
+
 bool Controller::switch_chassis_push_info(PushSwitch s, ChassisPushAttr attr=ALL, ChassisPushFrequence freq=FREQ_1Hz)
 {
     std::string command = std::string("chassis push");

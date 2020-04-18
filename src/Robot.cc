@@ -2,7 +2,8 @@
 
 using namespace RoboMasterEP;
 
-Robot::Robot()
+Robot::Robot(RobotNode *ros_node)
+    : ros_node(ros_node)
 {
     // allocate receive buffer for UDP transmission
     this->receive_buffer = new char[BUFFER_LENGTH];
@@ -15,7 +16,6 @@ Robot::Robot()
         this->controller = new Controller(this, this->ip, PORT_TCP_CONTROL);
         this->push_receiver = new PushReceiver(this, this->ip, PORT_UDP_PUSH);
         this->event_handler = new EventHandler(this, this->ip, PORT_TCP_EVENT);
-        this->thread_manager = new Thread(this);
     }
     catch(const std::exception& e)
     {
@@ -42,19 +42,18 @@ Robot::~Robot()
         delete this->event_handler;
         this->event_handler = nullptr;
     }
-
-    if (this->thread_manager)
-    {
-        delete this->thread_manager;
-        this->thread_manager = nullptr;
-    }
-
+    
     // release receive buffer
     if (this->receive_buffer)
     {
         delete this->receive_buffer;
         this->receive_buffer = nullptr;
     }
+}
+
+RobotNode* Robot::get_ros_node()
+{
+    return this->ros_node;
 }
 
 in_addr_t Robot::update_ip_via_udp(int port)

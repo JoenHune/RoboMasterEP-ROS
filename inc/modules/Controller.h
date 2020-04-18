@@ -28,12 +28,14 @@ private:
     
     char *receive_buffer;
 
+public:
+    Robot *robot;
+
+private:
     // create a tcp link with robot
     int connect_via_tcp(in_addr_t ip, int port);
 
 public:
-    Robot *robot;
-
     Controller(Robot *robot, in_addr_t ip, int port);
     ~Controller();
 
@@ -103,14 +105,14 @@ public:
     // @brief: 
     //      control chassis to a specified position relative to current position with appointed speed
     // @params:
-    //      dx(int:[-5, 5]): x axis movement of chassis, m
-    //      dy(int:[-5, 5]): y axis movement of chassis, m
-    //      dz(int:[-1800, 1800]): z axis rotation of chassis, °
-    //      speed_xy(int:(0, 3.5]): speed of x and y axes movement, m/s
-    //      speed_z(int:(0, 600}): rotate velocity of z axis rotation, °/s
+    //      dx(float:[-5, 5]): x axis movement of chassis, m
+    //      dy(float:[-5, 5]): y axis movement of chassis, m
+    //      dz(float:[-1800, 1800]): z axis rotation of chassis, °
+    //      vxy(float:(0, 3.5]): speed of x and y axes movement, m/s
+    //      vz(float:(0, 600}): rotate velocity of z axis rotation, °/s
     // @return:
     //      bool: operation succeeded or failed
-    bool set_chassis_position_relative(int dx, int dy, int dz, int speed_xy, int speed_z);
+    bool set_chassis_position_relative(float dx, float dy, float dz, float vxy, float vz);
 
     // 2.2.3.4 acquire chassis' speed
     // @brief: 
