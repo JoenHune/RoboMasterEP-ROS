@@ -45,6 +45,7 @@ add_executable(robomaster_ep
     src/modules/Controller.cc
     src/modules/EventHandler.cc
     src/modules/PushReceiver.cc
+    src/modules/Types.cc
     src/Robot.cc
     src/RobotNode.cc
     src/RobotSubscriber.cc

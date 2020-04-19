@@ -169,35 +169,60 @@ bool Controller::set_chassis_position_relative(float dx, float dy, float dz, flo
     return (0 == std::string("ok").compare(this->send_command(command)));
 }
 
-bool Controller::switch_chassis_push_info(PushSwitch s, ChassisPushAttr attr=ALL, ChassisPushFrequence freq=FREQ_1Hz)
+bool Controller::switch_chassis_push_info(PushSwitch s, ChassisPushAttr attr=ChassisPushAttr::ALL, ChassisPushFrequence freq=ChassisPushFrequence::FREQ_1Hz)
 {
     std::string command = std::string("chassis push");
 
-    std::string _s = (s == ON) ? "on" : "off";
+    std::string _s = (s == PushSwitch::ON) ? "on" : "off";
 
     switch (attr)
     {
-    case POSITION:
-        command += " position " + _s + " pfreq " + std::to_string(freq);
+    case ChassisPushAttr::POSITION:
+        command += " position " + _s + " pfreq " + std::to_string(static_cast<int>(freq));
         break;
 
-    case ATTITUDE:
-        command += " attitude " + _s + " afreq " + std::to_string(freq);
+    case ChassisPushAttr::ATTITUDE:
+        command += " attitude " + _s + " afreq " + std::to_string(static_cast<int>(freq));
         break;
 
-    case STATUS:
-        command += " status " + _s + " sfreq " + std::to_string(freq);
+    case ChassisPushAttr::STATUS:
+        command += " status " + _s + " sfreq " + std::to_string(static_cast<int>(freq));
         break;
     
     default:
-        command += " position " + _s + " attitude " + _s + " status " + _s + " freq " + std::to_string(freq);
+        command += " position " + _s + " attitude " + _s + " status " + _s + " freq " + std::to_string(static_cast<int>(freq));
         break;
     }
 
     std::clog << "[Command] " << command << std::endl;
 
-    if (s == ON) this->robot->push_receiver->start();
-    else         this->robot->push_receiver->stop();
+    if (s == PushSwitch::ON) this->robot->push_receiver->start();
+    else                     this->robot->push_receiver->stop();
 
     return (0 == std::string("ok").compare(this->send_command(command)));
+}
+
+bool Controller::set_led_effect(LEDComp comp, LEDEffect effect, int r, int g, int b)
+{
+    std::string command = std::string("led control comp ")
+                        + ::LEDCompToString(comp)
+                        + " r " + std::to_string(r)
+                        + " g " + std::to_string(g)
+                        + " b " + std::to_string(b)
+                        + " " + ::LEDEffectToString(effect);
+
+    command = std::string("led control comp bottom_back r 255 g 0 b 0 solid");
+
+    std::clog << "[Command] " << command << std::endl;
+
+    return (0 == std::string("ok").compare(this->send_command(command)));
+}
+
+bool Controller::set_led_effect(LEDComp comp, LEDEffect effect, uint32_t rgb)
+{
+    int r = (rgb >> 8) & 0x11,
+        g = (rgb >> 4) & 0x11,
+        b = (rgb >> 0) & 0x11;
+
+    return this->set_led_effect(comp, effect, r, g, b);
 }

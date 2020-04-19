@@ -6,13 +6,19 @@ RobotNode::RobotNode(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
 {
     this->robot = nullptr;
 
-	if(!this->init_subscribers(nh))
+    if (!init_parameters(nh_private))
+    {
+	    ROS_ERROR("Initialize parameters failed.");
+        throw std::runtime_error("Initialize parameters failed.");
+    }
+
+	if (!this->init_subscribers(nh))
     {
 	    ROS_ERROR("Initialize subscribers failed.");
         throw std::runtime_error("Initialize subscribers failed.");
     }
 
-	if(!this->init_publishers(nh))
+	if (!this->init_publishers(nh))
     {
 	    ROS_ERROR("Initialize publishers failed.");
         throw std::runtime_error("Initialize publishers failed.");
@@ -26,11 +32,14 @@ RobotNode::RobotNode(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
 	else
 	{
         ROS_INFO("Successful to access robot.");
+        this->robot->controller->set_led_effect(LEDComp::BOTTOM_ALL, LEDEffect::SOLID, this->LED_CONNECTED);
 	}
 }
 
 RobotNode::~RobotNode()
 {
+    this->robot->controller->set_led_effect(LEDComp::BOTTOM_ALL, LEDEffect::BLINK, this->LED_DISCONNECTED);
+
     if (this->robot)
     {
         delete this->robot;
@@ -85,5 +94,20 @@ bool RobotNode::init_subscribers(ros::NodeHandle &nh)
 
 bool RobotNode::init_publishers(ros::NodeHandle &nh)
 {
+    return true;
+}
+
+bool RobotNode::init_parameters(ros::NodeHandle &nh)
+{
+    nh.param("JS_STICK_X",          this->JS_STICK_X,               4);
+    nh.param("JS_STICK_Y",          this->JS_STICK_Y,               3);
+    nh.param("JS_STICK_Z",          this->JS_STICK_Z,               0);
+    nh.param("JS_STICK_DEADZONE",   this->JS_STICK_DEADZONE,        0.1f);
+    nh.param("JS_BUTTON_MANUAL",    this->JS_BUTTON_MANUAL,         6);
+    nh.param("JS_BUTTON_AUTONOMOUS", this->JS_BUTTON_AUTONOMOUS,    7);
+    nh.param("LED_CONNECTED",       this->LED_CONNECTED,            0xC2FFDE);
+    nh.param("LED_DISCONNECTED",    this->LED_DISCONNECTED,         0xFFA59C);
+    nh.param("LED_MANUAL",          this->LED_MANUAL,               0x8FC1FF);
+    nh.param("LED_AUTONOMOUS",      this->LED_AUTONOMOUS,           0xFFCAA8);
     return true;
 }

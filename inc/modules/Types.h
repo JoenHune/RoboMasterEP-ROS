@@ -2,31 +2,32 @@
 
 #include <stdlib.h>
 #include <cstdint>
+#include <string>
 
 namespace RoboMasterEP
 {
     
-enum ThreadType
+enum class ThreadType
 {
     PUSHRECEIVER = 0,
     EVENTDETECTOR,
     NUMBER_OF_TYPES
 };
 
-enum ControlMode
+enum class ControlMode
 {
-    CHASSIS_LEAD = 0,
+    FREE = 0,
+    CHASSIS_LEAD,
     GIMBAL_LEAD,
-    FREE
 };
 
-enum PushSwitch
+enum class PushSwitch
 {
     OFF = 0,
     ON
 };
 
-enum ChassisPushAttr
+enum class ChassisPushAttr
 {
     POSITION = 0,
     ATTITUDE,
@@ -34,7 +35,7 @@ enum ChassisPushAttr
     ALL
 };
 
-enum ChassisPushFrequence
+enum class ChassisPushFrequence
 {
     FREQ_OFF = 0,
     FREQ_1Hz = 1,
@@ -44,6 +45,30 @@ enum ChassisPushFrequence
     FREQ_30Hz = 30,
     FREQ_50Hz = 50
 };
+
+enum class LEDComp
+{
+    ALL = 0,
+    TOP_ALL,
+    TOP_RIGHT,
+    TOP_LEFT,
+    BOTTOM_ALL,
+    BOTTOM_FRONT,
+    BOTTOM_BACK,
+    BOTTOM_LEFT,
+    BOTTOM_RIGHT
+};
+std::string LEDCompToString(LEDComp comp);
+
+enum class LEDEffect
+{
+    OFF = 0,
+    SOLID,
+    PULSE,
+    BLINK,
+    SCROLLING // only for gimbal's leds
+};
+std::string LEDEffectToString(LEDEffect effect);
 
 struct ChassisSpeed
 {

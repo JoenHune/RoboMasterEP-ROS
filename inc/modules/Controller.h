@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,8 +9,6 @@
 #include <iostream>
 #include <string>
 #include <mutex>
-
-#pragma once
 
 #include "Types.h"
 
@@ -159,6 +159,34 @@ public:
     // @return:
     //      bool: operation succeeded or failed
     bool switch_chassis_push_info(PushSwitch s, ChassisPushAttr attr, ChassisPushFrequence freq);
+
+
+    // 2.2.9 leds
+    // @brief: 
+    //      control leds on robot
+    // @params:
+    //      comp(enum LEDComp): id of leds
+    //      effect(enum LEDEffect): different kinds of led's effect
+    //      r(int:[0, 255]): R in RGB
+    //      g(int:[0, 255]): G in RGB
+    //      b(int:[0, 255]): B in RGB
+    // @return:
+    //      bool: operation succeeded or failed
+    bool set_led_effect(LEDComp comp, LEDEffect effect, int r, int g, int b);
+
+    // @brief: 
+    //      control leds on robot (using rgb coding)
+    // @params:
+    //      comp(enum LEDComp): id of leds
+    //      effect(enum LEDEffect): different kinds of led's effect
+    //      rgb(uint32:0xAARRGGBB): ARGB code(only use RGB):
+    //                                  a: transparency
+    //                                  r: density of red
+    //                                  g: density of green
+    //                                  b: density of blue
+    // @return:
+    //      bool: operation succeeded or failed
+    bool set_led_effect(LEDComp comp, LEDEffect effect, uint32_t rgb);
 };
 
 };

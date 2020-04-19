@@ -1,3 +1,5 @@
+#pragma once
+
 #include <ros/ros.h>
 #include <arpa/inet.h>
 
@@ -19,6 +21,7 @@ private:
     bool init_robot();
     bool init_subscribers(ros::NodeHandle &nh);
     bool init_publishers(ros::NodeHandle &nh);
+    bool init_parameters(ros::NodeHandle &nh);
 
     // subscribe callbacks
     void joystick_control_callback(const sensor_msgs::JoyConstPtr &msg);
@@ -46,6 +49,26 @@ private:
     in_addr_t   lan_ip;
 
     // enums
+    enum class ControlMode
+    {
+        MANUAL = 0,
+        AUTONOMOUS
+    };
+
+    // parameters
+    ControlMode control_mode;
+    
+    int         JS_STICK_X;
+    int         JS_STICK_Y;
+    int         JS_STICK_Z;
+    float       JS_STICK_DEADZONE;
+    int         JS_BUTTON_MANUAL;
+    int         JS_BUTTON_AUTONOMOUS;
+
+    int         LED_CONNECTED;
+    int         LED_DISCONNECTED;
+    int         LED_MANUAL;
+    int         LED_AUTONOMOUS;
 
 }; // end of class RobotNode
 

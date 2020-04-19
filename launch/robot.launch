@@ -1,8 +1,15 @@
 <launch>
     <node pkg="robomaster_ep" type="robomaster_ep" name="robomaster_ep" output="screen">
     <!-- node parameters -->
-    <param name="serial_name" type="string" value="/dev/ttyUSB0"/>
-    <param name="baud_rate" type="int" value="115200"/>
+    <param name="serial_name" value="/dev/ttyUSB0"/>
+    <param name="baud_rate" value="115200"/>
+
+    <param name="JS_STICK_X" value="4"/>
+    <param name="JS_STICK_Y" value="3"/>
+    <param name="JS_STICK_Z" value="0"/>
+    <param name="JS_STICK_DEADZONE" value="0.1"/>
+    <param name="JS_BUTTON_MANUAL" value="6"/>
+    <param name="JS_BUTTON_AUTONOMOUS" value="7"/>
 
     <remap from="~joy" to="/joy"/>
     <remap from="~exp" to="/PositionCommand"/>
