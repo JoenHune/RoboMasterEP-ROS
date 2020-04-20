@@ -32,13 +32,13 @@ RobotNode::RobotNode(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
 	else
 	{
         ROS_INFO("Successful to access robot.");
-        this->robot->controller->set_led_effect(LEDComp::BOTTOM_ALL, LEDEffect::SOLID, this->LED_CONNECTED);
+        // this->robot->controller->set_led_effect(LEDComp::BOTTOM_ALL, LEDEffect::SOLID, this->LED_CONNECTED);
 	}
 }
 
 RobotNode::~RobotNode()
 {
-    this->robot->controller->set_led_effect(LEDComp::BOTTOM_ALL, LEDEffect::BLINK, this->LED_DISCONNECTED);
+    // this->robot->controller->set_led_effect(LEDComp::BOTTOM_ALL, LEDEffect::BLINK, this->LED_DISCONNECTED);
 
     if (this->robot)
     {
@@ -52,6 +52,7 @@ bool RobotNode::init_robot()
     try
     {
         this->robot = new Robot(this);
+        this->control_mode = ControlMode::MANUAL;
     }
     catch (...)
     {

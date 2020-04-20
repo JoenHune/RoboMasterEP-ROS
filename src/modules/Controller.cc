@@ -211,8 +211,6 @@ bool Controller::set_led_effect(LEDComp comp, LEDEffect effect, int r, int g, in
                         + " b " + std::to_string(b)
                         + " " + ::LEDEffectToString(effect);
 
-    command = std::string("led control comp bottom_back r 255 g 0 b 0 solid");
-
     std::clog << "[Command] " << command << std::endl;
 
     return (0 == std::string("ok").compare(this->send_command(command)));
